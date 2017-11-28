@@ -74,9 +74,9 @@ def pick_vpc(ec2):
     vpcs = ec2.describe_vpcs()
     for vpc in vpcs['Vpcs']:
         pprint.pprint(vpc)
-        yesno = input("Dump security groups for this VPC into {}.json? (y/n) ".format(vpc['VpcId']))
-        if yesno.lower() in ['y', 'yes']:
-            return vpc['VpcId']
+        print ("Dumping security groups for this VPC into {}.json... ".format(vpc['VpcId']))
+        
+        return vpc['VpcId']
 
 def output_instances_for_ansible(env, filename, instances, filter_tag):
     config = configparser.ConfigParser(allow_no_value=True)
@@ -110,13 +110,12 @@ def inspect_vpc(env, filter_tag):
             json.dump(instances, fp, sort_keys=True, indent=4, separators=(',', ': '))
 
         inventory_filename = "{}.ini".format(vpc)
-        yesno = input("Dump ansible inventory for this VPC into {}? (y/n) ".format(inventory_filename))
-        if yesno.lower() in ['y', 'yes']:
-            output_instances_for_ansible(env, inventory_filename, instances, filter_tag)
+        print ("Dumping ansible inventory for this VPC into {}... ".format(inventory_filename))
+        
+        output_instances_for_ansible(env, inventory_filename, instances, filter_tag)
         ip_list_filename = "{}.ips".format(vpc)
-        yesno = input("Dump ips for this VPC into {}? (y/n) ".format(ip_list_filename))
-        if yesno.lower() in ['y', 'yes']:
-            output_list_of_ips(ip_list_filename, instances)
+        print ("Dump ips for this VPC into {}... ".format(ip_list_filename))
+        output_list_of_ips(ip_list_filename, instances)
 
 if __name__=='__main__':
     inspect_vpc()
