@@ -72,11 +72,12 @@ def get_annotated_instances(ec2, vpc_id, security_groups):
 
 def pick_vpc(ec2):
     vpcs = ec2.describe_vpcs()
+    vpc_ids = []
     for vpc in vpcs['Vpcs']:
         pprint.pprint(vpc)
         print ("Dumping security groups for this VPC into {}.json... ".format(vpc['VpcId']))
-        
-        return vpc['VpcId']
+        vpc_ids.append(vpc['VpcId'])
+    return vpc_ids
 
 def output_instances_for_ansible(env, filename, instances, filter_tag):
     config = configparser.ConfigParser(allow_no_value=True)
@@ -102,20 +103,20 @@ def output_list_of_ips(filename, instances):
 def inspect_vpc(env, filter_tag):
     ec2 = boto3.client('ec2')
 
-    vpc = pick_vpc(ec2)
-    if vpc:
-        sgs = get_security_groups(ec2)
-        instances = get_annotated_instances(ec2, vpc, sgs)
-        with open("{}.json".format(vpc), 'w') as fp:
-            json.dump(instances, fp, sort_keys=True, indent=4, separators=(',', ': '))
+    for vpc in pick_vpc(ec2):
+        if vpc:
+            sgs = get_security_groups(ec2)
+            instances = get_annotated_instances(ec2, vpc, sgs)
+            with open("{}.json".format(vpc), 'w') as fp:
+                json.dump(instances, fp, sort_keys=True, indent=4, separators=(',', ': '))
 
-        inventory_filename = "{}.ini".format(vpc)
-        print ("Dumping ansible inventory for this VPC into {}... ".format(inventory_filename))
+            inventory_filename = "{}.ini".format(vpc)
+            print ("Dumping ansible inventory for this VPC into {}... ".format(inventory_filename))
         
-        output_instances_for_ansible(env, inventory_filename, instances, filter_tag)
-        ip_list_filename = "{}.ips".format(vpc)
-        print ("Dump ips for this VPC into {}... ".format(ip_list_filename))
-        output_list_of_ips(ip_list_filename, instances)
+            output_instances_for_ansible(env, inventory_filename, instances, filter_tag)
+            ip_list_filename = "{}.ips".format(vpc)
+            print ("Dump ips for this VPC into {}... ".format(ip_list_filename))
+            output_list_of_ips(ip_list_filename, instances)
 
 if __name__=='__main__':
     inspect_vpc()
