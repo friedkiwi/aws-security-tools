@@ -94,8 +94,12 @@ def output_list_of_ips(filename, instances):
     ips = []
     with open(filename, 'w') as ip_list:
         for instance in instances:
-            ips.append("{}\n{}\n".format(instance['private_ip'], instance['public_ip']))
-        ip_list.writelines(ips)
+            if instance['private_ip'] is not None:
+                ips.append(instance['private_ip'])
+            if instance['public_ip'] is not None:
+                ips.append(instance['public_ip'])
+        for ip in ips:
+            ip_list.write("%s\n" % (ip))
 
 @click.command()
 @click.option('--env', default='dev')
