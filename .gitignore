@@ -5,3 +5,4 @@ evidence/*
 *.json
 *.ips
 *.retry
+ansible/evidence/*
