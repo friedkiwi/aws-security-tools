@@ -5,4 +5,4 @@
       command: "apt list --installed"
       register: packages
     - name: Write list
-      local_action: copy content="{{ packages.stdout }}" dest="reports/{{ansible_hostname}}.packages"
+      local_action: copy content="{{ packages.stdout }}" dest="evidence/{{ansible_hostname}}.packages"
